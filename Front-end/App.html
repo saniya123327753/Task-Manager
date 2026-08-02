@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Task Manager App</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            background: #f4f5fb;
+            padding: 40px 20px;
+        }
+        
+        .app {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin: 0 0 20px;
+        }
+        
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            background: #0ea5e9;
+            color: #fff;
+        }
+        
+        button.secondary {
+            background: #e5e7eb;
+            color: #111;
+        }
+        
+        button.danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+        
+        .task-title.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        select {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        .muted {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <h1>Task Manager App</h1>
+
+        <div class="row">
+            <input id="taskInput" type="text" placeholder="Add a new task..." />
+            <button id="addBtn">Add</button>
+        </div>
+
+        <div class="filters">
+            <input id="searchInput" type="text" placeholder="Search tasks..." />
+            <select id="statusFilter">
+        <option value="all">All</option>
+        <option value="pending">Pending</option>
+        <option value="completed">Completed</option>
+      </select>
+            <button id="clearBtn" class="secondary">Clear search</button>
+            <button id="clearAllBtn" class="danger">Remove all</button>
+        </div>
+
+        <ul id="taskList"></ul>
+        <p id="empty" class="muted" style="display:none;">No tasks yet.</p>
+    </div>
+
+    <script>
+        const API = "http://127.0.0.1:5000/tasks";
+        const taskInput = document.getElementById("taskInput");
+        const addBtn = document.getElementById("addBtn");
+        const taskList = document.getElementById("taskList");
+        const empty = document.getElementById("empty");
+        const searchInput = document.getElementById("searchInput");
+        const statusFilter = document.getElementById("statusFilter");
+        const clearBtn = document.getElementById("clearBtn");
+        const clearAllBtn = document.getElementById("clearAllBtn");
+
+        let tasks = [];
+
+        async function load() {
+            const res = await fetch(API);
+            tasks = await res.json();
+            render();
+        }
+
+        async function addTask() {
+            const title = taskInput.value.trim();
+            if (!title) {
+                alert("Enter a task first");
+                return;
+            }
+            const res = await fetch(API, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title
+                })
+            });
+            if (!res.ok) {
+                alert("Task add nahi hua");
+                return;
+            }
+            taskInput.value = "";
+            await load();
+        }
+
+        async function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            const res = await fetch(`${API}/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: task.title,
+                    completed: !task.completed
+                })
+            });
+            if (!res.ok) {
+                alert("Update nahi hua");
+                return;
+            }
+            await load();
+        }
+
+        async function deleteTask(id) {
+            const res = await fetch(`${API}/${id}`, {
+                method: "DELETE"
+            });
+            if (!res.ok) {
+                alert("Delete nahi hua");
+                return;
+            }
+            await load();
+        }
+
+        async function clearAll() {
+            if (!tasks.length) {
+                alert("No tasks to remove");
+                return;
+            }
+            if (!confirm("Remove all tasks?")) return;
+            for (const t of tasks) {
+                await fetch(`${API}/${t.id}`, {
+                    method: "DELETE"
+                }).catch(() => {});
+            }
+            await load();
+        }
+
+        function getFiltered() {
+            const q = searchInput.value.trim().toLowerCase();
+            const status = statusFilter.value;
+            return tasks.filter(t => {
+                const matchText = !q || t.title.toLowerCase().includes(q);
+                const matchStatus =
+                    status === "all" ? true :
+                    status === "completed" ? t.completed : !t.completed;
+                return matchText && matchStatus;
+            });
+        }
+
+        function render() {
+            const filtered = getFiltered();
+            taskList.innerHTML = "";
+            if (!filtered.length) {
+                empty.style.display = "block";
+            } else {
+                empty.style.display = "none";
+            }
+            filtered.forEach(t => {
+                const li = document.createElement("li");
+                const span = document.createElement("span");
+                span.className = "task-title" + (t.completed ? " completed" : "");
+                span.textContent = t.title;
+                const actions = document.createElement("div");
+                actions.className = "actions";
+
+                const toggleBtn = document.createElement("button");
+                toggleBtn.className = "secondary";
+                toggleBtn.textContent = t.completed ? "Undo" : "Done";
+                toggleBtn.onclick = () => toggleTask(t.id);
+
+                const delBtn = document.createElement("button");
+                delBtn.className = "secondary";
+                delBtn.textContent = "Remove";
+                delBtn.onclick = () => deleteTask(t.id);
+
+                actions.appendChild(toggleBtn);
+                actions.appendChild(delBtn);
+                li.appendChild(span);
+                li.appendChild(actions);
+                taskList.appendChild(li);
+            });
+        }
+
+        addBtn.onclick = addTask;
+        clearBtn.onclick = () => {
+            searchInput.value = "";
+            statusFilter.value = "all";
+            render();
+        };
+        clearAllBtn.onclick = clearAll;
+        searchInput.oninput = render;
+        statusFilter.onchange = render;
+
+        load();
+    </script>
+</body>
+
+</html>

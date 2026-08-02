@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Simple Task Test</title>
+</head>
+
+<body>
+    <h1>Simple Task Test</h1>
+    <input id="taskInput" type="text" placeholder="Add a new task..." />
+    <button id="addBtn">Add</button>
+    <ul id="taskList"></ul>
+
+    <script>
+        const API = "http://127.0.0.1:5000/tasks";
+        const input = document.getElementById("taskInput");
+        const btn = document.getElementById("addBtn");
+        const list = document.getElementById("taskList");
+
+        async function load() {
+            const res = await fetch(API);
+            const tasks = await res.json();
+            list.innerHTML = "";
+            tasks.forEach(t => {
+                const li = document.createElement("li");
+                li.textContent = t.title + (t.completed ? " (done)" : "");
+                list.appendChild(li);
+            });
+        }
+
+        btn.addEventListener("click", async() => {
+            const title = input.value.trim();
+            if (!title) {
+                alert("Enter a task first");
+                return;
+            }
+            const res = await fetch(API, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title
+                })
+            });
+            if (!res.ok) {
+                alert("Task add nahi hua");
+                return;
+            }
+            input.value = "";
+            load();
+        });
+
+        load();
+    </script>
+</body>
+
+</html>

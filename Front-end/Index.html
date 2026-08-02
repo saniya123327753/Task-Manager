@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Task Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: radial-gradient(1200px 600px at 50% -20%, #f8fafc, #ffffff 60%);
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Big technical background logo (AI‑style abstract) */
+        
+        .bg-logo {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .logo-shape {
+            width: min(75vw, 700px);
+            height: min(75vw, 700px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.16), transparent 60%), radial-gradient(circle at 70% 70%, rgba(99, 102, 241, 0.16), transparent 60%), radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.12), transparent 70%);
+            position: relative;
+            transform: translateY(-10px);
+        }
+        
+        .logo-shape::before,
+        .logo-shape::after {
+            content: "";
+            position: absolute;
+            inset: 8%;
+            border-radius: 50%;
+            border: 2px solid rgba(37, 99, 235, 0.14);
+        }
+        
+        .logo-shape::after {
+            inset: 22%;
+            border-color: rgba(99, 102, 241, 0.14);
+        }
+        
+        .logo-center {
+            position: absolute;
+            width: 12%;
+            height: 12%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #6366f1);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.35);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        /* Content over logo */
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding-top: 20px;
+        }
+        
+        .title {
+            font-size: clamp(36px, 9vw, 72px);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: #0f172a;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        }
+        
+        .line {
+            font-size: clamp(15px, 2.4vw, 18px);
+            color: #334155;
+            line-height: 1.5;
+            font-weight: 600;
+            max-width: 520px;
+        }
+        
+        .footer {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .footer h2 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+            margin: 0;
+        }
+        /* Button style - last element */
+        
+        .btn {
+            display: inline-block;
+            padding: 13px 26px;
+            background: #111827;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 14px;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            letter-spacing: 0.01em;
+            margin-top: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            background: #0b1220;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Big technical logo covering the page -->
+    <div class="bg-logo">
+        <div class="logo-shape">
+            <div class="logo-center"></div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="container">
+        <div class="title">
+            Task Manager
+        </div>
+
+        <div class="line">
+
+            <h1>“Less distraction, more focus. Real outcomes.”</h1>
+
+        </div>
+
+
+        <a class="btn" href="app.html">
+      Open App
+    </a>
+        <div class="footer">
+            <h2>Full‑Stack Task Manager App</h2>
+        </div>
+    </div>
+</body>
+
+</html>
+
+</html>
